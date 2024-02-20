@@ -48,4 +48,19 @@ public class CreateTrail : MonoBehaviour
     {
         color = value;
     }
+
+    // Method to bake the trail renderer's mesh
+    public void BakeTrailMesh(GameObject trailObject)
+    {
+        TrailRenderer trailRenderer = trailObject.GetComponent<TrailRenderer>();
+        Mesh bakedMesh = new Mesh();
+        trailRenderer.BakeMesh(bakedMesh, true);
+
+        // Here, you can decide what to do with the baked mesh
+        // For example, attach it to a new GameObject with a MeshFilter and MeshRenderer,
+        // or save it for later use
+        GameObject meshObject = new GameObject("BakedTrailMesh");
+        meshObject.AddComponent<MeshFilter>().mesh = bakedMesh;
+        meshObject.AddComponent<MeshRenderer>().material = trailRenderer.material; // Use the same material as the trail for visual consistency
+    }
 }
