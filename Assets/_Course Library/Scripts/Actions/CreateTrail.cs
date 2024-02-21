@@ -7,7 +7,6 @@
 public class CreateTrail : MonoBehaviour
 {
     public GameObject trailPrefab = null;
-
     private float width = 0.05f;
     private Color color = Color.white;
 
@@ -49,18 +48,39 @@ public class CreateTrail : MonoBehaviour
         color = value;
     }
 
-    // Method to bake the trail renderer's mesh
-    public void BakeTrailMesh(GameObject trailObject)
+public TrailRenderer trailRenderer; // Assign this in the inspector
+public GameObject targetObject; // GameObject to hold the new mesh
+public void BakeTrailAndApplyMesh()
+{
+    if (trailRenderer == null)
     {
-        TrailRenderer trailRenderer = trailObject.GetComponent<TrailRenderer>();
-        Mesh bakedMesh = new Mesh();
-        trailRenderer.BakeMesh(bakedMesh, true);
-
-        // Here, you can decide what to do with the baked mesh
-        // For example, attach it to a new GameObject with a MeshFilter and MeshRenderer,
-        // or save it for later use
-        GameObject meshObject = new GameObject("BakedTrailMesh");
-        meshObject.AddComponent<MeshFilter>().mesh = bakedMesh;
-        meshObject.AddComponent<MeshRenderer>().material = trailRenderer.material; // Use the same material as the trail for visual consistency
+        Debug.LogError("TrailRenderer not assigned.");
+        return;
     }
+
+    if (targetObject == null)
+    {
+        Debug.LogError("TargetObject not assigned.");
+        return;
+    }
+
+    Mesh bakedMesh = new Mesh();
+    // Ensure the camera parameter correctly captures the trail. If not, adjust accordingly.
+    trailRenderer.BakeMesh(bakedMesh, Camera.main, true); // Consider changing to true or false based on your needs
+
+    MeshFilter meshFilter = targetObject.GetComponent<MeshFilter>();
+    if (meshFilter == null)
+    {
+        meshFilter = targetObject.AddComponent<MeshFilter>();
+    }
+    meshFilter.mesh = bakedMesh;
+
+    MeshRenderer meshRenderer = targetObject.GetComponent<MeshRenderer>();
+    if (meshRenderer == null)
+    {
+        meshRenderer = targetObject.AddComponent<MeshRenderer>();
+    }
+    // Assign a material to make sure the mesh is visible
+    meshRenderer.material = new Material(Shader.Find("Standard")); // Customize the material as needed
+}
 }
